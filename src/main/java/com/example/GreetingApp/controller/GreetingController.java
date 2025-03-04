@@ -31,4 +31,27 @@ public class GreetingController {
     public GreetingController(GreetingService greetingService) {
         this.greetingService = greetingService;
     }
+
+    // UC-3
+    @GetMapping
+    public Greeting getGreeting(
+            @RequestParam(required = false) String firstName,
+            @RequestParam(required = false) String lastName) {
+
+        String message;
+
+        if(firstName != null && lastName != null){
+            message = "Hello, " + firstName + " " + lastName + "!";
+        }
+        else if(firstName != null){
+            message = "Hello, " + firstName + "!";
+        }
+        else if(lastName != null){
+            message = "Hello, Mr./Ms. " + lastName + "!";
+        }
+        else{
+            message = "Hello, World!";
+        }
+        return new Greeting(message);
+    }
 }
