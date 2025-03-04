@@ -1,5 +1,6 @@
 package com.example.GreetingApp.controller;
 import com.example.GreetingApp.model.Greeting;
+import com.example.GreetingApp.service.GreetingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,5 +22,13 @@ public class GreetingController {
     @DeleteMapping
     public Greeting deleteGreeting(){
         return new Greeting("Greeting Deleted ");
+    }
+
+    // UC2
+    private final GreetingService greetingService;
+
+    @Autowired
+    public GreetingController(GreetingService greetingService) {
+        this.greetingService = greetingService;
     }
 }
