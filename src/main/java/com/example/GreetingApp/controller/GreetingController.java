@@ -3,26 +3,11 @@ import com.example.GreetingApp.model.Greeting;
 import com.example.GreetingApp.service.GreetingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import java.util.List;
 
 @RestController
 @RequestMapping("/greetings")
 public class GreetingController {
-    @GetMapping
-    public Greeting getGreetings(){
-        return new Greeting("Hello , My name is Dhruv Varshney !");
-    }
-    @PostMapping
-    public Greeting createGreeting(@RequestBody Greeting newGreeting){
-        return new Greeting("Greeting Created :"+newGreeting.getMessage());
-    }
-    @PutMapping
-    public Greeting updateGreeting(@RequestBody Greeting updatedGreeting){
-        return new Greeting("Greetings Updated :"+updatedGreeting.getMessage());
-    }
-    @DeleteMapping
-    public Greeting deleteGreeting(){
-        return new Greeting("Greeting Deleted ");
-    }
 
     // UC2
     private final GreetingService greetingService;
@@ -53,5 +38,32 @@ public class GreetingController {
             message = "Hello, World!";
         }
         return new Greeting(message);
+    }
+
+    // UC-4
+    @PostMapping("/save")
+    public Greeting saveGreeting(@RequestBody Greeting greeting) {
+        return greetingService.saveGreeting(greeting.getMessage());
+    }
+
+    // Retrieve All Saved Greetings
+    @GetMapping("/greetings")
+    public List<Greeting> getAllGreetings() {
+        return greetingService.getAllGreetings();
+    }
+
+    @PostMapping("/create")
+    public Greeting createGreeting(@RequestBody Greeting newGreeting) {
+        return new Greeting("Greeting Created: " + newGreeting.getMessage());
+    }
+
+    @PutMapping
+    public Greeting updateGreeting(@RequestBody Greeting updatedGreeting) {
+        return new Greeting("Greeting Updated: " + updatedGreeting.getMessage());
+    }
+
+    @DeleteMapping
+    public Greeting deleteGreeting() {
+        return new Greeting("Greeting Deleted");
     }
 }
