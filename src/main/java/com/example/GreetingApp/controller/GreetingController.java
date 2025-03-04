@@ -46,10 +46,16 @@ public class GreetingController {
         return greetingService.saveGreeting(greeting.getMessage());
     }
 
-    //UC-5( Fetches the greeting message by ID)
+    //UC-5 (Fetches the greeting message by ID)
     @GetMapping("/{id}")
     public Greeting getGreetingById(@PathVariable Long id) {
         return greetingService.getGreetingById(id);
+    }
+
+    //UC6 (Show)
+    @GetMapping("/greetings")
+    public List<Greeting> getAllGreetings() {
+        return greetingService.getAllGreetings();
     }
 
     @PostMapping("/create")
