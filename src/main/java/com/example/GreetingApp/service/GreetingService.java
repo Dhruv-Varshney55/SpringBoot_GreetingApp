@@ -8,23 +8,26 @@ import java.util.List;
 
 @Service
 public class GreetingService {
-    public Greeting getGreeting() {
-        return new Greeting("Hello World");
-    }
-
+    @Autowired
     private final GreetingRepository greetingRepository;
 
-    @Autowired
     public GreetingService(GreetingRepository greetingRepository) {
         this.greetingRepository = greetingRepository;
     }
 
+    // UC4
     public Greeting saveGreeting(String message) {
         Greeting greeting = new Greeting(message);
         return greetingRepository.save(greeting);
     }
 
+    // UC6 (Storing)
     public List<Greeting> getAllGreetings() {
         return greetingRepository.findAll();
+    }
+
+    // UC5
+    public Greeting getGreetingById(Long id) {
+        return greetingRepository.findById(id).orElseThrow(() -> new RuntimeException("Greeting not found with id: " + id));
     }
 }
