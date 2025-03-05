@@ -1,5 +1,6 @@
 package com.example.GreetingApp.service;
 import com.example.GreetingApp.dto.AuthUserDTO;
+import com.example.GreetingApp.dto.LoginDTO;
 import com.example.GreetingApp.model.AuthUser;
 import com.example.GreetingApp.repository.AuthUserRepository;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -45,5 +46,34 @@ public class AuthenticationService {
         emailService.sendEmail(user.getEmail(), "Regitration Status", user.getFirstName()+" you are registered!");
 
         return "user registered";
+    }
+
+
+    public String login(LoginDTO user){
+
+        List<AuthUser> l1 = userRepository.findAll().stream().filter(authuser -> authuser.getEmail().equals(user.getEmail())).collect(Collectors.toList());
+        if(l1.size() == 0) {
+            return "User not registered";
+        }
+
+        AuthUser foundUser = l1.get(0);
+
+        //matching the stored hashed password with the password provided by user
+        BCryptPasswordEncoder bcrypt = new BCryptPasswordEncoder();
+
+        if(!bcrypt.matches(user.getPassword(), foundUser.getHashPass())) {
+            return "Invalid password";
+        }
+
+        //creating Jwt Token
+        String token = jwtTokenService.createToken(foundUser.getId());
+
+        //setting token for user login
+        foundUser.setToken(token);
+
+        //saving the current status of user in database
+        userRepository.save(foundUser);
+
+        return "User logged in"+"\ntoken : "+token;
     }
 }
