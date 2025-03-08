@@ -1,4 +1,6 @@
 package com.example.GreetingApp.controller;
+import com.example.GreetingApp.dto.MessageDTO;
+import com.example.GreetingApp.interfaces.GreetingInterface;
 import com.example.GreetingApp.model.Greeting;
 import com.example.GreetingApp.service.GreetingService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +11,9 @@ import java.util.List;
 @RestController
 @RequestMapping("/greetings")
 public class GreetingController {
+
+    @Autowired
+    GreetingInterface greetingInterface;
 
     // UC2
     private final GreetingService greetingService;
@@ -41,35 +46,34 @@ public class GreetingController {
         return new Greeting(message);
     }
 
-    // UC-4
+    // UC4 (Save)
     @PostMapping("/save")
-    public Greeting saveGreeting(@RequestBody Greeting greeting) {
-        return greetingService.saveGreeting(greeting.getMessage());
+    public MessageDTO saveGreeting(@RequestBody MessageDTO message){
+        return greetingInterface.saveGreeting(message);
     }
 
-    //UC-5 (Fetches the greeting message by ID)
+    // UC5 (Get)
     @GetMapping("/{id}")
-    public Greeting getGreetingById(@PathVariable Long id) {
-        return greetingService.getGreetingById(id);
+    public MessageDTO getGreetingById(@PathVariable Long id){
+        return greetingInterface.getGreetingById(id);
     }
 
     //UC6 (Show)
     @GetMapping("/greetings")
-    public List<Greeting> getAllGreetings() {
-        return greetingService.getAllGreetings();
+    public List<MessageDTO> getAllGreetings(){
+        return greetingInterface.getAllGreetings();
     }
 
     // UC7 (Update)
     @PutMapping("/{id}")
-    public Greeting updateGreeting(@PathVariable Long id, @RequestBody Greeting greeting) {
-        return greetingService.updateGreeting(id, greeting.getMessage());
+    public MessageDTO updateGreeting(@RequestBody MessageDTO message, @PathVariable Long id){
+        return greetingInterface.updateGreeting(message, id);
     }
 
     // UC8 (Delete)
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteGreeting(@PathVariable Long id) {
-        greetingService.deleteGreeting(id);
-        return ResponseEntity.ok("Greeting deleted successfully!");
+    public String deleteGreeting(@PathVariable Long id){
+        return greetingInterface.deleteGreeting(id);
     }
 
     @PostMapping("/create")

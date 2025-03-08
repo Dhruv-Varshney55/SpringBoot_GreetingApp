@@ -1,56 +1,68 @@
 package com.example.GreetingApp.service;
 
+import com.example.GreetingApp.dto.MessageDTO;
+import com.example.GreetingApp.interfaces.GreetingInterface;
 import com.example.GreetingApp.model.Greeting;
 import com.example.GreetingApp.repository.GreetingRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
-
 import java.util.List;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
-public class GreetingService {
-    @Autowired
-    private final GreetingRepository greetingRepository;
+public class GreetingService implements GreetingInterface {
+    String message;
+    GreetingRepository greetingRepository;
 
     public GreetingService(GreetingRepository greetingRepository) {
         this.greetingRepository = greetingRepository;
+        message = "Hello World!";
+    }
+
+    public String getGreetings(){
+        return this.message;
     }
 
     // UC4
-    public Greeting saveGreeting(String message) {
-        Greeting greeting = new Greeting(message);
-        return greetingRepository.save(greeting);
+    public MessageDTO saveGreeting(MessageDTO message){
+        Greeting gr = new Greeting(message.getMessage());
+        greetingRepository.save(gr);
+        MessageDTO dto = new MessageDTO(gr.getMessage());
+        dto.setId(gr.getId());
+        return dto;
     }
 
-    // UC6 (Storing)
-    public List<Greeting> getAllGreetings() {
-        return greetingRepository.findAll();
+    // UC5
+    public List<MessageDTO> getAllGreetings(){
+        List<MessageDTO> list = greetingRepository.findAll().stream().map(entity -> {
+            MessageDTO md = new MessageDTO(entity.getMessage());
+            md.setId(entity.getId());
+            return md;
+        }).collect(Collectors.toList());
+        return list;
     }
 
-    // UC5 (Find)
-    public Greeting getGreetingById(Long id) {
-        return greetingRepository.findById(id).orElseThrow(() -> new RuntimeException("Greeting not found with id: " + id));
+    // UC6
+    public MessageDTO getGreetingById(Long id){
+        Greeting gr = greetingRepository.findById(id).orElseThrow(() -> new RuntimeException("No messages found with given id"));
+        MessageDTO md = new MessageDTO(gr.getMessage());
+        md.setId(gr.getId());
+        return md;
     }
 
     // UC7
-    public Greeting updateGreeting(Long id, String newMessage) {
-        Optional<Greeting> existingGreeting = greetingRepository.findById(id);
-        if (existingGreeting.isPresent()) {
-            Greeting greeting = existingGreeting.get();
-            greeting.setMessage(newMessage);
-            return greetingRepository.save(greeting);
-        }
-        throw new RuntimeException("Greeting with ID " + id + " not found");
+    public MessageDTO updateGreeting(MessageDTO message, Long id){
+        Greeting gr = greetingRepository.findById(id).orElseThrow(() -> new RuntimeException("No messages found with given id"));
+        gr.setMessage(message.getMessage());
+        greetingRepository.save(gr);
+        MessageDTO m2 = new MessageDTO(gr.getMessage());
+        m2.setId(gr.getId());
+        return m2;
     }
 
     // UC8
-    public void deleteGreeting(Long id) {
-        if (!greetingRepository.existsById(id)) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Greeting not found!");
-        }
-        greetingRepository.deleteById(id);
+    public String deleteGreeting(Long id){
+        Greeting gr = greetingRepository.findById(id).orElseThrow(() -> new RuntimeException("Cannot find message with given id"));
+        greetingRepository.delete(gr);
+        return "Message Deleted";
     }
 }

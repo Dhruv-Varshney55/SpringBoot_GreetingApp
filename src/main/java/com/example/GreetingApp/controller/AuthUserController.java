@@ -3,16 +3,20 @@ package com.example.GreetingApp.controller;
 import com.example.GreetingApp.dto.AuthUserDTO;
 import com.example.GreetingApp.dto.LoginDTO;
 import com.example.GreetingApp.dto.MailDTO;
+import com.example.GreetingApp.dto.PassDTO;
+import com.example.GreetingApp.interfaces.AuthInterface;
 import com.example.GreetingApp.service.AuthenticationService;
 import com.example.GreetingApp.service.EmailService;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 public class AuthUserController {
     EmailService emailService;
     AuthenticationService authenticationService;
+
+    @Autowired
+    AuthInterface authInterface;
 
     public AuthUserController(EmailService emailService, AuthenticationService authenticationService) {
         this.emailService = emailService;
@@ -35,5 +39,11 @@ public class AuthUserController {
     @PostMapping(path="/sendMail")
     public String sendMail(@RequestBody MailDTO user){ emailService.sendEmail(user.getTo(), user.getSubject(), user.getBody());
         return "Mail Sent";
+    }
+
+    // UC13 (Forgot password)
+    @PutMapping("/forgotPassword/{email}")
+    public AuthUserDTO forgotPassword(@RequestBody PassDTO pass, @PathVariable String email){
+        return authInterface.forgotPassword(pass, email);
     }
 }

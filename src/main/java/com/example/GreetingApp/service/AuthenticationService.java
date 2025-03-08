@@ -1,6 +1,8 @@
 package com.example.GreetingApp.service;
 import com.example.GreetingApp.dto.AuthUserDTO;
 import com.example.GreetingApp.dto.LoginDTO;
+import com.example.GreetingApp.dto.PassDTO;
+import com.example.GreetingApp.interfaces.AuthInterface;
 import com.example.GreetingApp.model.AuthUser;
 import com.example.GreetingApp.repository.AuthUserRepository;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -9,7 +11,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-public class AuthenticationService {
+public class AuthenticationService implements AuthInterface {
 
     AuthUserRepository userRepository;
     EmailService emailService;
@@ -43,9 +45,9 @@ public class AuthenticationService {
         userRepository.save(newUser);
 
         //sending the confirmation mail to the user
-        emailService.sendEmail(user.getEmail(), "Regitration Status", user.getFirstName()+" you are registered!");
+        emailService.sendEmail(user.getEmail(), "Regitration Status", user.getFirstName()+" You are registered!");
 
-        return "user registered";
+        return "User registered";
     }
 
 
@@ -75,5 +77,32 @@ public class AuthenticationService {
         userRepository.save(foundUser);
 
         return "User logged in"+"\ntoken : "+token;
+    }
+
+
+
+
+    // UC13 (Forgot Password)
+    public AuthUserDTO forgotPassword(PassDTO pass, String email){
+
+        AuthUser foundUser = userRepository.findByEmail(email);
+
+        if(foundUser == null) {
+            throw new RuntimeException("User not registered");
+        }
+
+        BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
+        String hashpass = bCryptPasswordEncoder.encode(pass.getPassword());
+
+        foundUser.setPassword(pass.getPassword());
+        foundUser.setHashPass(hashpass);
+
+        userRepository.save(foundUser);
+
+        emailService.sendEmail(email, "Status", "Your password has been reset");
+
+        AuthUserDTO authDTO = new AuthUserDTO(foundUser.getFirstName(), foundUser.getLastName(), foundUser.getEmail(), foundUser.getPassword(), foundUser.getId() );
+
+        return authDTO;
     }
 }

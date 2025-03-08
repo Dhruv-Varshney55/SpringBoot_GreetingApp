@@ -1,22 +1,31 @@
 package com.example.GreetingApp.model;
-import jakarta.persistence.*;
+
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 
 @Entity
-@Table(name = "greetings")
 public class Greeting {
+
+    String message;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    private String message;
+    Long id;
 
-    // Constructors
-    public Greeting() {}
-
-    public Greeting(String message){
-        this.message=message;
+    public Greeting(){
     }
 
-    // Getters and Setters
+    public Greeting(String message) {
+        this.message = message;
+        id = null;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
     public Long getId() {
         return id;
     }
@@ -27,9 +36,5 @@ public class Greeting {
 
     public void setMessage(String message) {
         this.message = message;
-    }
-
-    public String getMessage() {
-        return message;
     }
 }
