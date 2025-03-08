@@ -4,7 +4,6 @@ import com.example.GreetingApp.interfaces.GreetingInterface;
 import com.example.GreetingApp.model.Greeting;
 import com.example.GreetingApp.service.GreetingService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
@@ -16,11 +15,9 @@ public class GreetingController {
     GreetingInterface greetingInterface;
 
     // UC2
-    private final GreetingService greetingService;
-
-    @Autowired
-    public GreetingController(GreetingService greetingService) {
-        this.greetingService = greetingService;
+    @GetMapping("/service")
+    public String serviceGreetings(){
+        return greetingInterface .getGreetings();
     }
 
     // UC-3
