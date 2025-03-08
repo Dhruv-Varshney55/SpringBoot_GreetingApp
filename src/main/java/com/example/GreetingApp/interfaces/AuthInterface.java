@@ -10,4 +10,5 @@ public interface AuthInterface {
     public String register(AuthUserDTO user);
     public String login(LoginDTO user);
     public AuthUserDTO forgotPassword(PassDTO pass, String email);
+    public String resetPassword(String email, String currentPass, String newPass);
 }

@@ -9,6 +9,8 @@ import com.example.GreetingApp.service.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 @RestController
 public class AuthUserController {
     @Autowired
@@ -40,5 +42,13 @@ public class AuthUserController {
     @PutMapping("/forgotPassword/{email}")
     public AuthUserDTO forgotPassword(@RequestBody PassDTO pass, @PathVariable String email){
         return authInterface.forgotPassword(pass, email);
+    }
+
+    // UC14 (Reset password)
+    @PutMapping("/resetPassword/{email}")
+    public String resetPassword(@PathVariable String email, @RequestBody Map<String, String> requestBody) {
+        String currentPass = requestBody.get("currentPass");
+        String newPass = requestBody.get("newPass");
+        return authInterface.resetPassword(email, currentPass, newPass);
     }
 }

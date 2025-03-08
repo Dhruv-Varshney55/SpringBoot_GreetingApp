@@ -5,6 +5,7 @@ import com.example.GreetingApp.dto.PassDTO;
 import com.example.GreetingApp.interfaces.AuthInterface;
 import com.example.GreetingApp.model.AuthUser;
 import com.example.GreetingApp.repository.AuthUserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.util.List;
@@ -13,24 +14,21 @@ import java.util.stream.Collectors;
 @Service
 public class AuthenticationService implements AuthInterface {
 
+    @Autowired
     AuthUserRepository userRepository;
+    @Autowired
     EmailService emailService;
+    @Autowired
     JwtTokenService jwtTokenService;
 
-    public AuthenticationService(AuthUserRepository userRepository, EmailService emailService, JwtTokenService jwtTokenService) {
-        this.userRepository = userRepository;
-        this.emailService = emailService;
-        this.jwtTokenService = jwtTokenService;
-    }
+
+
 
     public String register(AuthUserDTO user){
-
         List<AuthUser> l1 = userRepository.findAll().stream().filter(authuser -> user.getEmail().equals(authuser.getEmail())).collect(Collectors.toList());
-
         if(l1.size()>0){
             return "User already registered";
         }
-
         //creating hashed password using bcrypt
         BCryptPasswordEncoder bcrypt = new BCryptPasswordEncoder();
         String hashPass = bcrypt.encode(user.getPassword());
@@ -51,13 +49,13 @@ public class AuthenticationService implements AuthInterface {
     }
 
 
-    public String login(LoginDTO user){
 
+
+    public String login(LoginDTO user){
         List<AuthUser> l1 = userRepository.findAll().stream().filter(authuser -> authuser.getEmail().equals(user.getEmail())).collect(Collectors.toList());
         if(l1.size() == 0) {
             return "User not registered";
         }
-
         AuthUser foundUser = l1.get(0);
 
         //matching the stored hashed password with the password provided by user
@@ -84,25 +82,44 @@ public class AuthenticationService implements AuthInterface {
 
     // UC13 (Forgot Password)
     public AuthUserDTO forgotPassword(PassDTO pass, String email){
-
         AuthUser foundUser = userRepository.findByEmail(email);
-
         if(foundUser == null) {
             throw new RuntimeException("User not registered");
         }
 
-        BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
-        String hashpass = bCryptPasswordEncoder.encode(pass.getPassword());
+        BCryptPasswordEncoder bcrypt = new BCryptPasswordEncoder();
+        String hashpass = bcrypt.encode(pass.getPassword());
 
         foundUser.setPassword(pass.getPassword());
         foundUser.setHashPass(hashpass);
 
         userRepository.save(foundUser);
-
         emailService.sendEmail(email, "Status", "Your password has been reset");
-
         AuthUserDTO authDTO = new AuthUserDTO(foundUser.getFirstName(), foundUser.getLastName(), foundUser.getEmail(), foundUser.getPassword(), foundUser.getId() );
-
         return authDTO;
+    }
+
+
+
+
+    // UC14 (Reset password)
+    public String resetPassword(String email, String currentPass, String newPass) {
+        AuthUser foundUser = userRepository.findByEmail(email);
+        if(foundUser == null){
+            return "User not registered!";
+        }
+
+        BCryptPasswordEncoder bcrypt = new BCryptPasswordEncoder();
+        if(!bcrypt.matches(currentPass, foundUser.getHashPass())){
+            return "Incorrect password!";
+        }
+
+        foundUser.setHashPass(bcrypt.encode(newPass));
+        foundUser.setPassword(newPass);
+
+        userRepository.save(foundUser);
+        emailService.sendEmail(email, "Status", "Password is reset successfully");
+
+        return "Password reset successfully!";
     }
 }
